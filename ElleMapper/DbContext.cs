@@ -75,6 +75,8 @@ namespace ElleMapper
                             var parameters = string.Join(",", nonKeys.Select((x, i) => $"@p{i}"));
                             string query = $"INSERT INTO {dialect.QuoteIdentifier(data.TableName)} ({columns}) VALUES ({parameters})";
 
+                            Console.WriteLine(query);
+
                             // INSERT INTO [Tbl_Blog] ([BlogTitle],[BlogAuthor],[BlogContent],[CreatedAt],[UpdatedAt],[DeletedAt],[IsDeleted]) VALUES (@p0,@p1,@p2,@p3,@p4,@p5,@p6)
 
                             using var command = connection.CreateCommand();
@@ -191,6 +193,8 @@ namespace ElleMapper
                             var columns = string.Join(",", nonKeys.Select(x => dialect.QuoteIdentifier(x.ColumnName)));
                             var parameters = string.Join(",", nonKeys.Select((x, i) => $"@p{i}"));
                             string query = $"INSERT INTO {dialect.QuoteIdentifier(data.TableName)} ({columns}) VALUES ({parameters})";
+
+                            Console.WriteLine(query);
 
                             // INSERT INTO [Tbl_Blog] ([BlogTitle],[BlogAuthor],[BlogContent],[CreatedAt],[UpdatedAt],[DeletedAt],[IsDeleted]) VALUES (@p0,@p1,@p2,@p3,@p4,@p5,@p6)
 

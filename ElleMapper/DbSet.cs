@@ -731,11 +731,11 @@ namespace ElleMapper
                     query += $" WHERE {whereClause}";
                 }
 
-                if (terminalOperator == nameof(Queryable.Single) || terminalOperator == nameof(Queryable.SingleOrDefault) ||
-                    terminalOperator == nameof(Queryable.First) || terminalOperator == nameof(Queryable.FirstOrDefault))
-                {
-                    query = query.Replace("SELECT *", "SELECT TOP 2 *");
-                }
+                //if (terminalOperator == nameof(Queryable.Single) || terminalOperator == nameof(Queryable.SingleOrDefault) ||
+                //    terminalOperator == nameof(Queryable.First) || terminalOperator == nameof(Queryable.FirstOrDefault))
+                //{
+                //    query = query.Replace("SELECT *", "SELECT TOP 2 *");
+                //}
 
                 if (skip > 0 || take > 0)
                 {
@@ -743,9 +743,11 @@ namespace ElleMapper
                     query += $" {dialect.LimitOffset(take, skip)}";
                 }
 
+                Console.WriteLine(query);
+
                 Type mapTargetType = typeof(TEntity); // Default mapping target is TEntity
 
-                if (selectorLambda != null)
+                if (selectorLambda is not null)
                 {
                     mapTargetType = selectorLambda.Body.Type;
                 }
@@ -764,6 +766,12 @@ namespace ElleMapper
 
                 if (terminalOperator == nameof(Queryable.Single))
                     return projectedResults.Single();
+
+                if (terminalOperator == nameof(Queryable.First))
+                    return projectedResults.First();
+
+                if (terminalOperator == nameof(Queryable.FirstOrDefault))
+                    return projectedResults.FirstOrDefault()!;
 
                 if (terminalOperator == nameof(Queryable.SingleOrDefault))
                     return projectedResults.SingleOrDefault()!;
@@ -876,22 +884,25 @@ namespace ElleMapper
                     {
                         string columnName = GetColumnNameFromProperty(targetType, property.Name);
 
-                        if (dt.Columns.Contains(columnName))
+                        if (!string.IsNullOrEmpty(columnName)) // need to skip if column name is null
                         {
-                            object? value = row[columnName];
-                            object? convertedValue = null;
-
-                            if (value == DBNull.Value)
+                            if (dt.Columns.Contains(columnName))
                             {
-                                convertedValue = null;
-                            }
-                            else
-                            {
-                                var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-                                convertedValue = Convert.ChangeType(value, type);
-                            }
+                                object? value = row[columnName];
+                                object? convertedValue = null;
 
-                            property.SetValue(entity, convertedValue!);
+                                if (value == DBNull.Value)
+                                {
+                                    convertedValue = null;
+                                }
+                                else
+                                {
+                                    var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                                    convertedValue = Convert.ChangeType(value, type);
+                                }
+
+                                property.SetValue(entity, convertedValue);
+                            }
                         }
                     }
 
@@ -947,18 +958,6 @@ namespace ElleMapper
             }
 
             return propertyName;
-        }
-
-        private Func<TEntity, object?>? CompileSelector(Expression selectorArg)
-        {
-            var lambdaExpression = UnwrapLambda(selectorArg);
-
-            var resultType = lambdaExpression.Body.Type;
-
-            return Expression.Lambda<Func<TEntity, object?>>(
-                Expression.Convert(lambdaExpression.Body, typeof(object)),
-                lambdaExpression.Parameters
-            ).Compile();
         }
     }
 }

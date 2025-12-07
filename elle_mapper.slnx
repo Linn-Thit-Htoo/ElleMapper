@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Demo/Demo.csproj" Id="bbfbb1a9-f0c9-494b-abc1-d736f508b3ab" />
   <Project Path="ElleMapper.MySql/ElleMapper.MySql.csproj" Id="bb30df03-2357-4778-a93c-3f36741d29de" />
   <Project Path="ElleMapper.SqlServer/ElleMapper.SqlServer.csproj" Id="b7064515-e7ff-4383-8bff-921a60a181e7" />
   <Project Path="ElleMapper/ElleMapper.csproj" Id="df0d8505-caa4-42ed-9a77-8af2d6ffec4c" />

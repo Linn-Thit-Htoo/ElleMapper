@@ -23,6 +23,17 @@ namespace ElleMapper.Tools
             foreach (var col in table.Columns)
             {
                 string cSharpType = MapSqlToCSharp(col.DataType, col.IsNullable);
+
+                if (Convert.ToBoolean(col.IsPrimaryKey))
+                {
+                    sb.AppendLine("    [Key]");
+                }
+
+                if (Convert.ToBoolean(col.IsIdentity))
+                {
+                    sb.AppendLine("    [Identity]");
+                }
+
                 sb.AppendLine($"    public {cSharpType} {col.ColumnName} {{ get; set; }}");
             }
 
@@ -32,7 +43,7 @@ namespace ElleMapper.Tools
                 foreach (var reference in references)
                 {
                     string principalName = reference.PrincipalTable;
-                    sb.AppendLine($"    public virtual {principalName} {principalName} {{ get; set; }}");
+                    sb.AppendLine($"    public virtual {principalName.Capitalize()} {principalName} {{ get; set; }}");
                 }
             }
 
@@ -45,7 +56,7 @@ namespace ElleMapper.Tools
                     string dependentName = collection.DependentTable;
                     string collectionName = dependentName.Pluralize();
 
-                    sb.AppendLine($"    public virtual ICollection<{dependentName}> {collectionName} {{ get; set; }} = new List<{dependentName}>();");
+                    sb.AppendLine($"    public virtual ICollection<{dependentName.Capitalize()}> {collectionName} {{ get; set; }} = new List<{dependentName}>();");
                 }
             }
 

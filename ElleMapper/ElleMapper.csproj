@@ -7,7 +7,7 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper</PackageId>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<Author>Lin Thit Htoo</Author>
 		<Product>ElleMapper</Product>
 		<IsPackable>true</IsPackable>

@@ -15,7 +15,12 @@ namespace ElleMapper
 
         public string GetColumnName(string propertyName)
         {
-            var property = Properties.FirstOrDefault(x => x.PropertyName == propertyName) ?? throw new ArgumentNullException($"Property {propertyName} is null.");
+            var property = Properties.FirstOrDefault(x => x.PropertyName == propertyName);
+
+            if (property is null)
+            {
+                return default!;
+            }
 
             return property.ColumnName;
         }

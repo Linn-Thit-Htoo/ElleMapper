@@ -29,7 +29,12 @@ namespace ElleMapper
 
                 var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-                foreach (var prop in props)
+                // 2. Filter the properties using LINQ
+                var scalarProperties = props
+                    .Where(p => !IsNavigationProperty(p))
+                    .ToList();
+
+                foreach (var prop in scalarProperties)
                 {
                     var ignoreAttribute = prop.GetCustomAttribute<IgnoreAttribute>();
                     if (ignoreAttribute is not null)
@@ -68,10 +73,10 @@ namespace ElleMapper
                     entityType.Properties.Add(property);
                 }
 
-                //if (entityType.KeyProperty is null)
-                //{
-                //    throw new ArgumentNullException($"Entity {type.Name} does not have a Key property.");
-                //}
+                if (entityType.KeyProperty is null)
+                {
+                    throw new ArgumentNullException($"Entity {type.Name} does not have a Key property.");
+                }
 
                 //if (entityType.Properties.Where(x => x.IsIdentity).Count() > 1)
                 //{
@@ -84,6 +89,44 @@ namespace ElleMapper
             {
                 throw;
             }
+        }
+
+        private bool IsNavigationProperty(PropertyInfo property)
+        {
+            bool isVirtual = property.GetMethod?.IsVirtual ?? false;
+
+            if (isVirtual)
+            {
+                Type propType = property.PropertyType;
+
+                bool isScalar = propType.IsPrimitive ||
+                                propType == typeof(string) ||
+                                propType.IsValueType ||
+                                (propType.IsGenericType && propType.GetGenericTypeDefinition() == typeof(Nullable<>));
+
+                if (!isScalar)
+                {
+                    return true;
+                }
+            }
+
+            if (property.PropertyType.GetInterfaces().Any(i =>
+                i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsBuiltInScalar(Type propType)
+        {
+            return propType == typeof(DateTime) ||
+                   propType == typeof(DateTime?) ||
+                   propType == typeof(Guid) ||
+                   propType == typeof(Guid?) ||
+                   propType == typeof(decimal) ||
+                   propType == typeof(decimal?);
         }
     }
 }
