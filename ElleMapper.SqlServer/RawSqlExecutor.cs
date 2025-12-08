@@ -22,6 +22,11 @@ namespace ElleMapper.SqlServer
         {
             try
             {
+                if (string.IsNullOrEmpty(query))
+                {
+                    throw new ArgumentNullException("Query cannot be empty.");
+                }
+
                 SqlConnection connection = new(_connectionString);
                 await connection.OpenAsync();
 
@@ -46,14 +51,19 @@ namespace ElleMapper.SqlServer
             }
         }
 
-        public async Task<List<T>> FromSqlAsync<T>(string query, Dictionary<string, object>? parameters = null)
+        public async Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null)
         {
             try
             {
+                if (string.IsNullOrEmpty(storedProcedureName))
+                {
+                    throw new ArgumentNullException("Stored Procedure Name cannot be empty.");
+                }
+
                 SqlConnection connection = new(_connectionString);
                 await connection.OpenAsync();
 
-                SqlCommand command = new(query, connection);
+                SqlCommand command = new(storedProcedureName, connection);
                 command.CommandType = CommandType.StoredProcedure;
                 if (parameters is not null && parameters.Count > 0)
                 {
@@ -70,7 +80,7 @@ namespace ElleMapper.SqlServer
                 await connection.CloseAsync();
 
                 string jsonStr = JsonConvert.SerializeObject(dt);
-                var lst = JsonConvert.DeserializeObject<List<T>>(jsonStr);
+                var lst = JsonConvert.DeserializeObject<T>(jsonStr);
 
                 return lst!;
             }

@@ -288,6 +288,13 @@ namespace ElleMapper
             }
         }
 
+        /// <summary>
+        /// Executes the specified raw SQL query asynchronously against the database.
+        /// </summary>
+        /// <param name="query">The SQL query string to execute. Must be a valid SQL statement compatible with the target database.</param>
+        /// <param name="parameters">An optional dictionary of parameter names and values to be applied to the SQL query. If null, the query is
+        /// executed without parameters.</param>
+        /// <returns>The number of rows affected by the query.</returns>
         public async Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null)
         {
             try
@@ -301,7 +308,14 @@ namespace ElleMapper
             }
         }
 
-        public async Task<List<T>> FromSql<T>(string query, Dictionary<string, object>? parameters = null)
+        /// <summary>
+        /// Executes the stored procedure.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="parameters"></param>
+        /// <returns>The generic type.</returns>
+        public async Task<T> FromSql<T>(string query, Dictionary<string, object>? parameters = null)
         {
             try
             {

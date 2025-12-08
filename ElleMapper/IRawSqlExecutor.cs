@@ -10,6 +10,6 @@ namespace ElleMapper
     public interface IRawSqlExecutor
     {
         Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null);
-        Task<List<T>> FromSqlAsync<T>(string query, Dictionary<string, object>? parameters = null);
+        Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null);
     }
 }

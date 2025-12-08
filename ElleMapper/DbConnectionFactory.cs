@@ -11,6 +11,7 @@ namespace ElleMapper
     {
         private readonly IDatabaseProvider _provider;
         private readonly string _connectionString;
+
         public DbConnectionFactory(IDatabaseProvider provider, string connectionString)
         {
             _provider = provider;
@@ -31,5 +32,7 @@ namespace ElleMapper
                 throw;
             }
         }
+
+        public DbProviderFactory GetDbProviderFactory() => _provider.ProviderFactory;
     }
 }
