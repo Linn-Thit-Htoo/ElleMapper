@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper.MySql</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Author>Lin Thit Htoo</Author>
 		<Product>ElleMapper.MySql</Product>
 		<IsPackable>true</IsPackable>
@@ -15,12 +15,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="ElleMapper" Version="1.0.5" />
 		<PackageReference Include="MySqlConnector" Version="2.5.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\ElleMapper\ElleMapper.csproj" />
 	</ItemGroup>
 
 </Project>

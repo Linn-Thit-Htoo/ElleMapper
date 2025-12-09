@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper.SqlServer</PackageId>
-		<Version>1.0.1</Version>
+		<Version>1.0.2</Version>
 		<Author>Lin Thit Htoo</Author>
 		<Product>ElleMapper.SqlServer</Product>
 		<IsPackable>true</IsPackable>
@@ -17,10 +17,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0-preview2.25289.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\ElleMapper\ElleMapper.csproj" />
+		<PackageReference Include="ElleMapper" Version="1.0.5" />
 	</ItemGroup>
 
 </Project>
