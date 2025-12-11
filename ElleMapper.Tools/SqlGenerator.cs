@@ -17,6 +17,7 @@ namespace ElleMapper.Tools
             sb.AppendLine("using ElleMapper;");
             //sb.AppendLine($"using {targetNamespace};");
             sb.AppendLine();
+            sb.AppendLine($"[Table(\"{table.TableName}\")]");
             sb.AppendLine($"public class {table.TableName.Capitalize()}");
             sb.AppendLine("{");
 

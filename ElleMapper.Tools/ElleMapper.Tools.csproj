@@ -11,7 +11,7 @@
 		<ToolCommandName>elle</ToolCommandName>
 
 		<PackageId>ElleMapper.Tools</PackageId>
-		<Version>1.0.6</Version>
+		<Version>1.0.8</Version>
 		<Authors>Lin Thit Htoo</Authors>
 		<PackageDescription>ElleMapper ORM CLI Scaffolding Tool</PackageDescription>
 		<RepositoryUrl>https://github.com/Linn-Thit-Htoo/ElleMapper.git</RepositoryUrl>
