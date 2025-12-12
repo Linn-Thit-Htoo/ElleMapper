@@ -60,6 +60,45 @@ namespace ElleMapper.Tools
             }
         }
 
+        public async Task<List<TableMetadata>> ExtractViews()
+        {
+            try
+            {
+                var lst = new List<TableMetadata>();
+                var tableNames = new List<string>();
+
+                string query = @"SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_type = 'VIEW';";
+
+                DataTable dt = await _service.QueryDtAsync(query, new List<MySqlParameter>());
+
+                if (dt is not null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        tableNames.Add(row["TABLE_NAME"].ToString()!);
+                    }
+                }
+
+                if (tableNames is not null && tableNames.Count > 0)
+                {
+                    foreach (var tableName in tableNames)
+                    {
+                        lst.Add(new TableMetadata
+                        {
+                            TableName = tableName,
+                            Columns = await GetColumnsByTableName(tableName)
+                        });
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<List<TableRelationMetadata>> GetRelationMetadata(string parentTableName)
         {
             try

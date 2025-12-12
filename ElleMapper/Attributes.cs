@@ -26,6 +26,11 @@ namespace ElleMapper
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ViewAttribute : Attribute
+    {
+    }
+
     [AttributeUsage(AttributeTargets.Property)]
     public class IdentityAttribute : Attribute
     {

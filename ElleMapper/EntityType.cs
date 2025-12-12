@@ -11,6 +11,7 @@ namespace ElleMapper
         public Type ClrType { get; set; }
         public string TableName { get; set; }
         public Property KeyProperty { get; set; }
+        public bool IsView { get; set; }
         public List<Property> Properties { get; set; } = new();
 
         public string GetColumnName(string propertyName)

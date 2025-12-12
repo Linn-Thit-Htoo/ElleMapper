@@ -9,6 +9,7 @@ namespace ElleMapper.Tools
     public interface IGenerator
     {
         string GenerateEntityClass(TableMetadata table, string targetNamespace, List<TableRelationMetadata> tableRelations);
+        string GenerateEntityClassForViews(TableMetadata view);
         string GenerateDbContext(List<TableMetadata> tables, string targetNamespace, string contextName);
     }
 }

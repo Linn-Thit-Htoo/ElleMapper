@@ -9,6 +9,7 @@ namespace ElleMapper.Tools
     public interface ISchemaExtractor
     {
         Task<List<TableMetadata>> ExtractSchema();
+        Task<List<TableMetadata>> ExtractViews();
         Task<List<TableRelationMetadata>> GetRelationMetadata(string parentTableName);
     }
 }

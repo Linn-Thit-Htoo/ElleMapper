@@ -22,46 +22,55 @@ namespace ElleMapper.Tools
 
         public async Task<List<TableMetadata>> ExtractSchema()
         {
-            var lst = new List<TableMetadata>();
-            var tableNames = new List<string>();
+            try
+            {
+                var lst = new List<TableMetadata>();
+                var tableNames = new List<string>();
 
-            string query = @"SELECT 
+                string query = @"SELECT 
     TABLE_NAME
 FROM 
     INFORMATION_SCHEMA.TABLES
 WHERE 
     TABLE_TYPE = 'BASE TABLE' AND TABLE_CATALOG = DB_NAME();";
 
-            DataTable dt = await _service.QueryDtAsync(query, new List<SqlParameter>());
+                DataTable dt = await _service.QueryDtAsync(query, new List<SqlParameter>());
 
-            if (dt is not null && dt.Rows.Count > 0)
-            {
-                foreach (DataRow row in dt.Rows)
+                if (dt is not null && dt.Rows.Count > 0)
                 {
-                    tableNames.Add(row["TABLE_NAME"].ToString()!);
-                }
-            }
-
-            if (tableNames is not null && tableNames.Count > 0)
-            {
-                foreach (var tableName in tableNames)
-                {
-                    lst.Add(new TableMetadata
+                    foreach (DataRow row in dt.Rows)
                     {
-                        TableName = tableName,
-                        Columns = await GetColumnsByTable(tableName)
-                    });
+                        tableNames.Add(row["TABLE_NAME"].ToString()!);
+                    }
                 }
-            }
 
-            return lst;
+                if (tableNames is not null && tableNames.Count > 0)
+                {
+                    foreach (var tableName in tableNames)
+                    {
+                        lst.Add(new TableMetadata
+                        {
+                            TableName = tableName,
+                            Columns = await GetColumnsByTable(tableName)
+                        });
+                    }
+                }
+
+                return lst;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private async Task<List<ColumnMetadata>> GetColumnsByTable(string tableName)
         {
-            var columnLst = new List<ColumnMetadata>();
+            try
+            {
+                var columnLst = new List<ColumnMetadata>();
 
-            string query = $@"
+                string query = $@"
             SELECT 
                 c.name AS COLUMN_NAME, 
                 t.name AS DATA_TYPE,
@@ -81,29 +90,34 @@ WHERE
             ORDER BY 
                 c.column_id";
 
-            var parameters = new List<SqlParameter>()
+                var parameters = new List<SqlParameter>()
             {
                 new SqlParameter("@TableName", tableName)
             };
 
-            var lst = await _service.QueryAsync<SqlColumns>(query, parameters);
+                var lst = await _service.QueryAsync<SqlColumns>(query, parameters);
 
-            if (lst is not null && lst.Count > 0)
-            {
-                foreach (var item in lst)
+                if (lst is not null && lst.Count > 0)
                 {
-                    columnLst.Add(new ColumnMetadata
+                    foreach (var item in lst)
                     {
-                        ColumnName = item.COLUMN_NAME,
-                        DataType = item.DATA_TYPE,
-                        IsIdentity = item.IS_IDENTITY,
-                        IsNullable = item.IS_NULLABLE,
-                        IsPrimaryKey = item.IS_PRIMARY_KEY
-                    });
+                        columnLst.Add(new ColumnMetadata
+                        {
+                            ColumnName = item.COLUMN_NAME,
+                            DataType = item.DATA_TYPE,
+                            IsIdentity = item.IS_IDENTITY,
+                            IsNullable = item.IS_NULLABLE,
+                            IsPrimaryKey = item.IS_PRIMARY_KEY
+                        });
+                    }
                 }
-            }
 
-            return columnLst;
+                return columnLst;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         public async Task<List<TableRelationMetadata>> GetRelationMetadata(string parentTableName)
@@ -151,6 +165,51 @@ ORDER BY
                 }
 
                 return relations;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<List<TableMetadata>> ExtractViews()
+        {
+            try
+            {
+                var lst = new List<TableMetadata>();
+                var tableNames = new List<string>();
+
+                string query = @"SELECT 
+    TABLE_NAME
+FROM 
+    INFORMATION_SCHEMA.TABLES
+WHERE 
+    TABLE_CATALOG = DB_NAME()
+    AND TABLE_TYPE = 'VIEW';";
+
+                DataTable dt = await _service.QueryDtAsync(query, new List<SqlParameter>());
+
+                if (dt is not null && dt.Rows.Count > 0)
+                {
+                    foreach (DataRow row in dt.Rows)
+                    {
+                        tableNames.Add(row["TABLE_NAME"].ToString()!);
+                    }
+                }
+
+                if (tableNames is not null && tableNames.Count > 0)
+                {
+                    foreach (var tableName in tableNames)
+                    {
+                        lst.Add(new TableMetadata
+                        {
+                            TableName = tableName,
+                            Columns = await GetColumnsByTable(tableName)
+                        });
+                    }
+                }
+
+                return lst;
             }
             catch (Exception ex)
             {

@@ -126,5 +126,39 @@ namespace ElleMapper.Tools
 
             return cSharpType;
         }
+
+        public string GenerateEntityClassForViews(TableMetadata view)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("using System;");
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using ElleMapper;");
+            //sb.AppendLine($"using {targetNamespace};");
+            sb.AppendLine();
+            sb.AppendLine($"[View(\"{view.TableName}\")]");
+            sb.AppendLine($"public class {view.TableName.Capitalize()}");
+            sb.AppendLine("{");
+
+            foreach (var col in view.Columns)
+            {
+                string cSharpType = MapSqlToCSharp(col.DataType, col.IsNullable);
+
+                if (Convert.ToBoolean(col.IsPrimaryKey))
+                {
+                    sb.AppendLine("    [Key]");
+                }
+
+                if (Convert.ToBoolean(col.IsIdentity))
+                {
+                    sb.AppendLine("    [Identity]");
+                }
+
+                sb.AppendLine($"    public {cSharpType} {col.ColumnName} {{ get; set; }}");
+            }
+
+            sb.AppendLine("}");
+
+            return sb.ToString();
+        }
     }
 }

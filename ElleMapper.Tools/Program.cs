@@ -6,14 +6,14 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        if (!args[0].Equals("scaffold", StringComparison.OrdinalIgnoreCase))
-        {
-            Console.WriteLine("Invalid scaffold command.");
-            return;
-        }
+        //if (!args[0].Equals("scaffold", StringComparison.OrdinalIgnoreCase))
+        //{
+        //    Console.WriteLine("Invalid scaffold command.");
+        //    return;
+        //}
 
-        string connectionString = args[1];
-        string providerName = args[2];
+        string connectionString = args[2];
+        string providerName = args[3];
 
         if (string.IsNullOrEmpty(providerName))
         {
@@ -33,7 +33,7 @@ public class Program
         }
 
         // catch output and dbcontext param
-        for (int i = 3; i < args.Length; i++)
+        for (int i = 4; i < args.Length; i++)
         {
             if (args[i].Equals("-o", StringComparison.OrdinalIgnoreCase))
             {
@@ -53,6 +53,7 @@ public class Program
         Directory.CreateDirectory(dir);
 
         var tables = await extractor.ExtractSchema();
+        var views = await extractor.ExtractViews();
 
         if (tables is null || tables.Count == 0)
         {
@@ -60,7 +61,7 @@ public class Program
             return;
         }
 
-        // create entities
+        // create entities for tables
         foreach (var table in tables)
         {
             var relations = await extractor.GetRelationMetadata(table.TableName);
@@ -68,6 +69,18 @@ public class Program
             table.TableName = table.TableName.Capitalize();
             string entityPath = Path.Combine(defaultOuputDir, $"{table.TableName}.cs");
             await File.WriteAllTextAsync(entityPath, entityClassOutput);
+        }
+
+        // create entities for views
+        if (views is not null && views.Count > 0)
+        {
+            foreach (var view in views)
+            {
+                var entityClassOutput = generator.GenerateEntityClassForViews(view);
+                view.TableName = view.TableName.Capitalize();
+                string entityPath = Path.Combine(defaultOuputDir, $"{view.TableName}.cs");
+                await File.WriteAllTextAsync(entityPath, entityClassOutput);
+            }
         }
 
         // create db context file

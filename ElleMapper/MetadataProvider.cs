@@ -27,9 +27,14 @@ namespace ElleMapper
                 var tableAttribute = type.GetCustomAttribute<TableAttribute>();
                 entityType.TableName = tableAttribute is not null ? tableAttribute.Name : type.Name;
 
+                var viewAttribute = type.GetCustomAttribute<ViewAttribute>();
+                if (viewAttribute is not null)
+                {
+                    entityType.IsView = true;
+                }
+
                 var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-                // 2. Filter the properties using LINQ
                 var scalarProperties = props
                     .Where(p => !IsNavigationProperty(p))
                     .ToList();
@@ -55,9 +60,12 @@ namespace ElleMapper
                     var keyAttribute = prop.GetCustomAttribute<KeyAttribute>();
                     if (keyAttribute is not null)
                     {
-                        if (entityType.KeyProperty is not null)
+                        if (!entityType.IsView) // skip PK check if the entity type is view
                         {
-                            throw new Exception("Can only contain one primary key in a table.");
+                            if (entityType.KeyProperty is not null)
+                            {
+                                throw new ArgumentNullException("Can only contain one primary key in a table.");
+                            }
                         }
 
                         property.IsKey = true;
@@ -71,11 +79,6 @@ namespace ElleMapper
                     }
 
                     entityType.Properties.Add(property);
-                }
-
-                if (entityType.KeyProperty is null)
-                {
-                    throw new ArgumentNullException($"Entity {type.Name} does not have a Key property.");
                 }
 
                 //if (entityType.Properties.Where(x => x.IsIdentity).Count() > 1)
