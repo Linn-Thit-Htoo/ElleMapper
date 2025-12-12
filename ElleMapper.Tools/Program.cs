@@ -6,14 +6,14 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
-        //if (!args[0].Equals("scaffold", StringComparison.OrdinalIgnoreCase))
-        //{
-        //    Console.WriteLine("Invalid scaffold command.");
-        //    return;
-        //}
+        if (!args[0].Equals("scaffold", StringComparison.OrdinalIgnoreCase))
+        {
+            Console.WriteLine("Invalid scaffold command.");
+            return;
+        }
 
-        string connectionString = args[2];
-        string providerName = args[3];
+        string connectionString = args[1];
+        string providerName = args[2];
 
         if (string.IsNullOrEmpty(providerName))
         {
@@ -33,7 +33,7 @@ public class Program
         }
 
         // catch output and dbcontext param
-        for (int i = 4; i < args.Length; i++)
+        for (int i = 3; i < args.Length; i++)
         {
             if (args[i].Equals("-o", StringComparison.OrdinalIgnoreCase))
             {
