@@ -9,7 +9,7 @@ namespace ElleMapper
 {
     public class DbContextOptionsBuilder
     {
-        private readonly DbContextOptions _options = new();
+        internal readonly DbContextOptions _options = new();
 
         public DbContextOptionsBuilder UseProvider(string connectionString, IDatabaseProvider databaseProvider, IRawSqlExecutor rawSqlExecutor)
         {
