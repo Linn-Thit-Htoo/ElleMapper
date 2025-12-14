@@ -7,8 +7,9 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper</PackageId>
-		<Version>1.0.8</Version>
+		<Version>1.0.9</Version>
 		<Author>Lin Thit Htoo</Author>
+		<PackageIcon>Ellemapper.jpg</PackageIcon>
 		<Product>ElleMapper</Product>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/Linn-Thit-Htoo/ElleMapper.git</RepositoryUrl>
@@ -18,6 +19,10 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0-preview2.25289.6" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Ellemapper.jpg" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>

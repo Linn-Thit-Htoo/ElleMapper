@@ -6,8 +6,9 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper.MySql</PackageId>
-		<Version>1.0.2</Version>
+		<Version>1.0.3</Version>
 		<Author>Lin Thit Htoo</Author>
+		<PackageIcon>Ellemapper.jpg</PackageIcon>
 		<Product>ElleMapper.MySql</Product>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/Linn-Thit-Htoo/ElleMapper.git</RepositoryUrl>
@@ -15,9 +16,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="ElleMapper" Version="1.0.5" />
+		<PackageReference Include="ElleMapper" Version="1.0.9" />
 		<PackageReference Include="MySqlConnector" Version="2.5.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Ellemapper.jpg" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>

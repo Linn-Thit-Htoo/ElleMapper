@@ -18,7 +18,7 @@ namespace ElleMapper.SqlServer
             _connectionString = connectionString;
         }
 
-        public async Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null)
+        public async Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null, CancellationToken cs = default)
         {
             try
             {
@@ -28,7 +28,7 @@ namespace ElleMapper.SqlServer
                 }
 
                 SqlConnection connection = new(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync(cs);
 
                 SqlCommand command = new(query, connection);
                 if (parameters is not null && parameters.Count > 0)
@@ -39,7 +39,7 @@ namespace ElleMapper.SqlServer
                     }
                 }
 
-                int result = await command.ExecuteNonQueryAsync();
+                int result = await command.ExecuteNonQueryAsync(cs);
 
                 await connection.CloseAsync();
 
@@ -51,7 +51,7 @@ namespace ElleMapper.SqlServer
             }
         }
 
-        public async Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null)
+        public async Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null, CancellationToken cs = default)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace ElleMapper.SqlServer
                 }
 
                 SqlConnection connection = new(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync(cs);
 
                 SqlCommand command = new(storedProcedureName, connection);
                 command.CommandType = CommandType.StoredProcedure;

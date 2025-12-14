@@ -19,7 +19,7 @@ namespace ElleMapper.MySql
             _connectionString = connectionString;
         }
 
-        public async Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null)
+        public async Task<int> ExecuteRawSqlAsync(string query, Dictionary<string, object>? parameters = null, CancellationToken cs = default)
         {
             try
             {
@@ -29,7 +29,7 @@ namespace ElleMapper.MySql
                 }
 
                 MySqlConnection connection = new(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync(cs);
 
                 MySqlCommand command = new(query, connection);
                 if (parameters is not null && parameters.Count > 0)
@@ -40,7 +40,7 @@ namespace ElleMapper.MySql
                     }
                 }
 
-                int result = await command.ExecuteNonQueryAsync();
+                int result = await command.ExecuteNonQueryAsync(cs);
 
                 await connection.CloseAsync();
 
@@ -52,7 +52,7 @@ namespace ElleMapper.MySql
             }
         }
 
-        public async Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null)
+        public async Task<T> FromSqlAsync<T>(string storedProcedureName, Dictionary<string, object>? parameters = null, CancellationToken cs = default)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace ElleMapper.MySql
                 }
 
                 MySqlConnection connection = new(_connectionString);
-                await connection.OpenAsync();
+                await connection.OpenAsync(cs);
 
                 MySqlCommand command = new(storedProcedureName, connection);
                 command.CommandType = CommandType.StoredProcedure;
