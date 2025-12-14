@@ -6,9 +6,9 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper.SqlServer</PackageId>
-		<Version>1.0.3</Version>
+		<Version>1.0.5</Version>
 		<Author>Lin Thit Htoo</Author>
-		<PackageIcon>Ellemapper.jpg</PackageIcon>
+		<PackageIcon>images/ellemapper.png</PackageIcon>
 		<Product>ElleMapper.SqlServer</Product>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/Linn-Thit-Htoo/ElleMapper.git</RepositoryUrl>
@@ -18,11 +18,11 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0-preview2.25289.6" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="ElleMapper" Version="1.0.9" />
+		<PackageReference Include="ElleMapper" Version="1.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Ellemapper.jpg" Pack="true" PackagePath="/" />
+		<None Update="images\ellemapper.png" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>

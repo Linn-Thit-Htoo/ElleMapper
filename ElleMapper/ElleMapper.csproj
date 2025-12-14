@@ -7,9 +7,9 @@
 		<Nullable>enable</Nullable>
 
 		<PackageId>ElleMapper</PackageId>
-		<Version>1.0.9</Version>
+		<Version>1.0.12</Version>
 		<Author>Lin Thit Htoo</Author>
-		<PackageIcon>Ellemapper.jpg</PackageIcon>
+		<PackageIcon>images/ellemapper.png</PackageIcon>
 		<Product>ElleMapper</Product>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/Linn-Thit-Htoo/ElleMapper.git</RepositoryUrl>
@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Ellemapper.jpg" Pack="true" PackagePath="/" />
+	  <None Update="images\ellemapper.png" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 </Project>

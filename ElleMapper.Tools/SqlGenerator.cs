@@ -57,7 +57,7 @@ namespace ElleMapper.Tools
                     string dependentName = collection.DependentTable;
                     string collectionName = dependentName.Pluralize();
 
-                    sb.AppendLine($"    public virtual ICollection<{dependentName.Capitalize()}> {collectionName} {{ get; set; }} = new List<{dependentName}>();");
+                    sb.AppendLine($"    public virtual ICollection<{dependentName.Capitalize()}> {collectionName} {{ get; set; }} = new List<{dependentName.Capitalize()}>();");
                 }
             }
 

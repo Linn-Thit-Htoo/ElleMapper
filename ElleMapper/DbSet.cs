@@ -123,10 +123,14 @@ namespace ElleMapper
                 var dialect = _context._options.DatabaseProvider.Dialect;
                 var metaData = _context.MetadataProvider.GetEntityType(typeof(TEntity));
 
-                var methodCall = expression as MethodCallExpression ??
-                    throw new NotSupportedException("Only chained query methods are supported.");
+                var methodCall = expression as MethodCallExpression;
 
-                string terminalOperator = methodCall.Method.Name;
+                string terminalOperator = string.Empty;
+
+                if (methodCall is not null)
+                {
+                    terminalOperator = methodCall.Method.Name;
+                }
 
                 var whereClauses = new List<string>();
                 var selectClauses = new List<string>();
@@ -138,44 +142,48 @@ namespace ElleMapper
                 int take = 0;
 
                 Expression current = methodCall;
-                while (current.NodeType == ExpressionType.Call)
+
+                if (current is not null)
                 {
-                    var mce = (MethodCallExpression)current;
-                    if (mce.Method.Name == "Where")
+                    while (current.NodeType == ExpressionType.Call)
                     {
-                        var lambda = UnwrapLambda(mce.Arguments[1]);
-                        var translator = new SqlExpressionVisitor(_context._options.DatabaseProvider.Dialect, parameters);
-                        whereClauses.Add(translator.Translate(lambda.Body));
-                    }
-
-                    if (mce.Method.Name == "Select")
-                    {
-                        var selectorArg = mce.Arguments[1];
-                        selectorLambda = UnwrapLambda(selectorArg);
-                        ExtractSelectColumns(selectorLambda, metaData, dialect, selectClauses);
-                    }
-
-                    if (mce.Method.Name == "Skip")
-                    {
-                        var arg = mce.Arguments[1];
-
-                        if (arg is ConstantExpression constantExpr)
+                        var mce = (MethodCallExpression)current;
+                        if (mce.Method.Name == "Where")
                         {
-                            skip = (int)constantExpr.Value!;
+                            var lambda = UnwrapLambda(mce.Arguments[1]);
+                            var translator = new SqlExpressionVisitor(_context._options.DatabaseProvider.Dialect, parameters);
+                            whereClauses.Add(translator.Translate(lambda.Body));
                         }
-                    }
 
-                    if (mce.Method.Name == "Take")
-                    {
-                        var arg = mce.Arguments[1];
-
-                        if (arg is ConstantExpression constantExpr)
+                        if (mce.Method.Name == "Select")
                         {
-                            take = (int)constantExpr.Value!;
+                            var selectorArg = mce.Arguments[1];
+                            selectorLambda = UnwrapLambda(selectorArg);
+                            ExtractSelectColumns(selectorLambda, metaData, dialect, selectClauses);
                         }
-                    }
 
-                    current = mce.Arguments[0];
+                        if (mce.Method.Name == "Skip")
+                        {
+                            var arg = mce.Arguments[1];
+
+                            if (arg is ConstantExpression constantExpr)
+                            {
+                                skip = (int)constantExpr.Value!;
+                            }
+                        }
+
+                        if (mce.Method.Name == "Take")
+                        {
+                            var arg = mce.Arguments[1];
+
+                            if (arg is ConstantExpression constantExpr)
+                            {
+                                take = (int)constantExpr.Value!;
+                            }
+                        }
+
+                        current = mce.Arguments[0];
+                    }
                 }
 
                 whereClause = string.Join(" AND ", whereClauses);
@@ -224,17 +232,20 @@ namespace ElleMapper
 
                 var projectedResults = resultsList.Cast<TResult>();
 
-                if (terminalOperator == nameof(Queryable.Single))
-                    return projectedResults.Single();
+                if (!string.IsNullOrEmpty(terminalOperator))
+                {
+                    if (terminalOperator == nameof(Queryable.Single))
+                        return projectedResults.Single();
 
-                if (terminalOperator == nameof(Queryable.First))
-                    return projectedResults.First();
+                    if (terminalOperator == nameof(Queryable.First))
+                        return projectedResults.First();
 
-                if (terminalOperator == nameof(Queryable.FirstOrDefault))
-                    return projectedResults.FirstOrDefault()!;
+                    if (terminalOperator == nameof(Queryable.FirstOrDefault))
+                        return projectedResults.FirstOrDefault()!;
 
-                if (terminalOperator == nameof(Queryable.SingleOrDefault))
-                    return projectedResults.SingleOrDefault()!;
+                    if (terminalOperator == nameof(Queryable.SingleOrDefault))
+                        return projectedResults.SingleOrDefault()!;
+                }
 
                 return (TResult)resultsObj!;
             }
@@ -393,7 +404,10 @@ namespace ElleMapper
 
                 for (int i = 0; i < parameters.Count; i++)
                 {
-                    sqlParams.Add(new SqlParameter($"@p{i}", parameters[i] ?? DBNull.Value));
+                    var param = command.CreateParameter();
+                    param.ParameterName = $"@p{i}";
+                    param.Value = parameters[i] ?? DBNull.Value;
+                    sqlParams.Add(param);
                 }
 
                 if (sqlParams is not null && sqlParams.Count > 0)
