@@ -180,5 +180,35 @@ namespace ElleMapper
                 throw;
             }
         }
+
+        /// <summary>
+        /// Returns the count value
+        /// </summary>
+        /// <typeparam name="T">The type of the elements of the source.</typeparam>
+        /// <param name="source">The source to return the single element from.</param>
+        /// <param name="cancellationToken">Used to cancel the asynchronous operation.</param>
+        /// <returns>
+        /// The single element of the input sequence, or the default value of T if the sequence
+        /// contains no elements.
+        /// </returns>
+        public static async Task<int> CountAsync<T>(this IQueryable<T> source, CancellationToken cs = default)
+        {
+            try
+            {
+                cs.ThrowIfCancellationRequested();
+
+                if (source.Provider is IQueryProvider provider)
+                {
+                    var result = provider.Execute<IEnumerable<T>>(source.Expression);
+                    return await Task.FromResult(result.Count());
+                }
+
+                return default;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }

@@ -140,6 +140,7 @@ namespace ElleMapper
                 LambdaExpression selectorLambda = null;
                 int skip = 0;
                 int take = 0;
+                bool isCount = false;
 
                 Expression current = methodCall;
 
@@ -182,6 +183,11 @@ namespace ElleMapper
                             }
                         }
 
+                        if (mce.Method.Name == "Count")
+                        {
+                            isCount = true;
+                        }
+
                         current = mce.Arguments[0];
                     }
                 }
@@ -209,6 +215,11 @@ namespace ElleMapper
                 {
                     query += $" ORDER BY {dialect.QuoteIdentifier(metaData.KeyProperty.ColumnName)} ASC";
                     query += $" {dialect.LimitOffset(take, skip)}";
+                }
+
+                if (isCount)
+                {
+                    query = $"SELECT COUNT(*) FROM {dialect.QuoteIdentifier(metaData.TableName)} WHERE {whereClause}";
                 }
 
                 Console.WriteLine(query);
@@ -245,6 +256,14 @@ namespace ElleMapper
 
                     if (terminalOperator == nameof(Queryable.SingleOrDefault))
                         return projectedResults.SingleOrDefault()!;
+
+                    if (terminalOperator == nameof(Queryable.Count))
+                    {
+                        object rawValue = dt.Rows.Count > 0 ? dt.Rows[0][0] : 0;
+                        int count = Convert.ToInt32(rawValue);
+
+                        return (TResult)(object)count;
+                    }
                 }
 
                 return (TResult)resultsObj!;
