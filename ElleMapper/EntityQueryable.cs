@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ElleMapper
 {
-    public class EntityQueryable<TElement> : IQueryable<TElement>
+    public class EntityQueryable<TElement> : IQueryable<TElement>, IOrderedQueryable<TElement>
     {
         public IQueryProvider Provider { get; }
 

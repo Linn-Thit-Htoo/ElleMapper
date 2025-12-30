@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace ElleMapper
 {
-    public class DbSet<TEntity> : IQueryable<TEntity>, IQueryProvider
+    public class DbSet<TEntity> : IQueryable<TEntity>, IQueryProvider, IOrderedQueryable<TEntity>
     {
         private readonly DbContext _context;
         public Expression Expression { get; }
@@ -141,6 +141,7 @@ namespace ElleMapper
                 int skip = 0;
                 int take = 0;
                 bool isCount = false;
+                List<string> orderByClauses = new();
 
                 Expression current = methodCall;
 
@@ -188,6 +189,16 @@ namespace ElleMapper
                             isCount = true;
                         }
 
+                        if (mce.Method.Name == nameof(Queryable.OrderBy) || mce.Method.Name == nameof(Queryable.OrderByDescending))
+                        {
+                            var lambda = UnwrapLambda(mce.Arguments[1]);
+                            var propertyName = GetPropertyName(lambda);
+                            var ascending = mce.Method.Name == nameof(Queryable.OrderBy);
+
+                            // Add to your "ORDER BY" list in the translator
+                            orderByClauses.Add($"{dialect.QuoteIdentifier(propertyName)} {(ascending ? "ASC" : "DESC")}");
+                        }
+
                         current = mce.Arguments[0];
                     }
                 }
@@ -220,6 +231,11 @@ namespace ElleMapper
                 if (isCount)
                 {
                     query = $"SELECT COUNT(*) FROM {dialect.QuoteIdentifier(metaData.TableName)} WHERE {whereClause}";
+                }
+
+                if (orderByClauses is not null && orderByClauses.Count > 0)
+                {
+                    query += $" ORDER BY {string.Join(", ", orderByClauses)}";
                 }
 
                 Console.WriteLine(query);
@@ -455,6 +471,31 @@ namespace ElleMapper
             }
 
             return propertyName;
+        }
+
+        private string GetPropertyName(Expression expression)
+        {
+            // 1. Unwrap the lambda (e.g., x => x.BlogTitle)
+            if (expression is LambdaExpression lambda)
+            {
+                expression = lambda.Body;
+            }
+
+            // 2. Remove any conversion/casting (e.g., if sorting on an Enum or Nullable)
+            if (expression is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+            {
+                expression = unary.Operand;
+            }
+
+            // 3. Extract the Member name
+            if (expression is MemberExpression member)
+            {
+                // Ensure this property belongs to your entity and not a navigation property
+                // (You can check against your metadata here)
+                return member.Member.Name;
+            }
+
+            throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported for property access.");
         }
     }
 }
