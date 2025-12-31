@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.Data.SqlClient;
 
 namespace ElleMapper
 {
@@ -51,7 +51,10 @@ namespace ElleMapper
             }
         }
 
-        public virtual Task AddRangeAsync(IEnumerable<TEntity> entities, CancellationToken cs = default)
+        public virtual Task AddRangeAsync(
+            IEnumerable<TEntity> entities,
+            CancellationToken cs = default
+        )
         {
             ArgumentNullException.ThrowIfNull(entities);
 
@@ -95,8 +98,8 @@ namespace ElleMapper
             }
         }
 
-        public IEnumerator<TEntity> GetEnumerator()
-            => Provider.Execute<IEnumerable<TEntity>>(Expression).GetEnumerator();
+        public IEnumerator<TEntity> GetEnumerator() =>
+            Provider.Execute<IEnumerable<TEntity>>(Expression).GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -153,7 +156,10 @@ namespace ElleMapper
                         if (mce.Method.Name == "Where")
                         {
                             var lambda = UnwrapLambda(mce.Arguments[1]);
-                            var translator = new SqlExpressionVisitor(_context._options.DatabaseProvider.Dialect, parameters);
+                            var translator = new SqlExpressionVisitor(
+                                _context._options.DatabaseProvider.Dialect,
+                                parameters
+                            );
                             whereClauses.Add(translator.Translate(lambda.Body));
                         }
 
@@ -189,14 +195,18 @@ namespace ElleMapper
                             isCount = true;
                         }
 
-                        if (mce.Method.Name == nameof(Queryable.OrderBy) || mce.Method.Name == nameof(Queryable.OrderByDescending))
+                        if (
+                            mce.Method.Name == nameof(Queryable.OrderBy)
+                            || mce.Method.Name == nameof(Queryable.OrderByDescending)
+                        )
                         {
                             var lambda = UnwrapLambda(mce.Arguments[1]);
                             var propertyName = GetPropertyName(lambda);
                             var ascending = mce.Method.Name == nameof(Queryable.OrderBy);
 
-                            // Add to your "ORDER BY" list in the translator
-                            orderByClauses.Add($"{dialect.QuoteIdentifier(propertyName)} {(ascending ? "ASC" : "DESC")}");
+                            orderByClauses.Add(
+                                $"{dialect.QuoteIdentifier(propertyName)} {(ascending ? "ASC" : "DESC")}"
+                            );
                         }
 
                         current = mce.Arguments[0];
@@ -209,11 +219,13 @@ namespace ElleMapper
 
                 if (!string.IsNullOrEmpty(selectClause))
                 {
-                    query = $"SELECT {selectClause} FROM {dialect.QuoteIdentifier(metaData.TableName)}";
+                    query =
+                        $"SELECT {selectClause} FROM {dialect.QuoteIdentifier(metaData.TableName)}";
                 }
                 else
                 {
-                    query = $"SELECT {string.Join(',', metaData.Properties
+                    query =
+                        $"SELECT {string.Join(',', metaData.Properties
                     .Select(x => dialect.QuoteIdentifier(x.ColumnName)))} FROM {dialect.QuoteIdentifier(metaData.TableName)}";
                 }
 
@@ -224,13 +236,15 @@ namespace ElleMapper
 
                 if (skip > 0 || take > 0)
                 {
-                    query += $" ORDER BY {dialect.QuoteIdentifier(metaData.KeyProperty.ColumnName)} ASC";
+                    query +=
+                        $" ORDER BY {dialect.QuoteIdentifier(metaData.KeyProperty.ColumnName)} ASC";
                     query += $" {dialect.LimitOffset(take, skip)}";
                 }
 
                 if (isCount)
                 {
-                    query = $"SELECT COUNT(*) FROM {dialect.QuoteIdentifier(metaData.TableName)} WHERE {whereClause}";
+                    query =
+                        $"SELECT COUNT(*) FROM {dialect.QuoteIdentifier(metaData.TableName)} WHERE {whereClause}";
                 }
 
                 if (orderByClauses is not null && orderByClauses.Count > 0)
@@ -305,7 +319,8 @@ namespace ElleMapper
             LambdaExpression selector,
             EntityType metaData,
             ISqlDialect dialect,
-            List<string> selectClauses)
+            List<string> selectClauses
+        )
         {
             try
             {
@@ -325,7 +340,9 @@ namespace ElleMapper
                         var stripped = StripConvert(arg);
 
                         if (stripped is not MemberExpression memArg)
-                            throw new NotSupportedException("Only simple member projections supported.");
+                            throw new NotSupportedException(
+                                "Only simple member projections supported."
+                            );
 
                         var col = metaData.GetColumnName(memArg.Member.Name);
                         selectClauses.Add(dialect.QuoteIdentifier(col));
@@ -342,7 +359,9 @@ namespace ElleMapper
                             var stripped = StripConvert(ma.Expression);
 
                             if (stripped is not MemberExpression memArg)
-                                throw new NotSupportedException("Initializer must assign simple members.");
+                                throw new NotSupportedException(
+                                    "Initializer must assign simple members."
+                                );
 
                             var col = metaData.GetColumnName(memArg.Member.Name);
                             selectClauses.Add(dialect.QuoteIdentifier(col));
@@ -363,7 +382,10 @@ namespace ElleMapper
         {
             try
             {
-                while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
+                while (
+                    expr.NodeType == ExpressionType.Convert
+                    || expr.NodeType == ExpressionType.ConvertChecked
+                )
                     expr = ((UnaryExpression)expr).Operand;
 
                 return expr;
@@ -374,7 +396,8 @@ namespace ElleMapper
             }
         }
 
-        private List<TTarget> MapResults<TTarget>(DataTable dt) where TTarget : new()
+        private List<TTarget> MapResults<TTarget>(DataTable dt)
+            where TTarget : new()
         {
             try
             {
@@ -403,7 +426,9 @@ namespace ElleMapper
                                 }
                                 else
                                 {
-                                    var type = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+                                    var type =
+                                        Nullable.GetUnderlyingType(property.PropertyType)
+                                        ?? property.PropertyType;
                                     convertedValue = Convert.ChangeType(value, type);
                                 }
 
@@ -495,7 +520,9 @@ namespace ElleMapper
                 return member.Member.Name;
             }
 
-            throw new NotSupportedException($"The expression type {expression.GetType().Name} is not supported for property access.");
+            throw new NotSupportedException(
+                $"The expression type {expression.GetType().Name} is not supported for property access."
+            );
         }
     }
 }
